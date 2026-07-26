@@ -6,7 +6,7 @@ from itertools import pairwise
 from statistics import median
 from typing import Any
 
-from app.schemas.water_usage import NormalizedWaterUsage, WaterMeasurement
+from app.common.models.water_usage import NormalizedWaterUsage, WaterMeasurement
 
 
 def _sum_since(measurements: tuple[WaterMeasurement, ...], start: datetime, end: datetime) -> float:

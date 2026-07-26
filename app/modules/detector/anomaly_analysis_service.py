@@ -9,11 +9,15 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from app.common.models.anomaly import (
+    AnomalyAnalysisResponse,
+    AnomalyEvidence,
+    AnomalyLLMResult,
+)
+from app.common.models.water_usage import NormalizedWaterUsage
 from app.core.config import Settings
 from app.core.exceptions import InvalidLLMResponseError
 from app.modules.ai.openai_connector import AnalysisConnector
-from app.schemas.anomaly import AnomalyAnalysisResponse, AnomalyEvidence, AnomalyLLMResult
-from app.schemas.water_usage import NormalizedWaterUsage
 from app.utils.datetime_utils import utc_now
 from app.utils.feature_utils import calculate_features
 

@@ -12,6 +12,7 @@ from openai import AsyncOpenAI
 from pydantic import ValidationError
 from tenacity import AsyncRetrying, retry_if_exception_type, stop_after_attempt, wait_exponential
 
+from app.common.models.anomaly import AnomalyLLMResult
 from app.core.config import Settings
 from app.core.exceptions import (
     InvalidLLMResponseError,
@@ -21,7 +22,6 @@ from app.core.exceptions import (
     OpenAIServiceError,
     OpenAITimeoutError,
 )
-from app.schemas.anomaly import AnomalyLLMResult
 
 
 class AnalysisConnector(Protocol):

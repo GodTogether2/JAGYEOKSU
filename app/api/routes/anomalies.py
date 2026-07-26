@@ -7,12 +7,12 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.api.dependencies import get_anomaly_analysis_service, get_water_usage_getter
+from app.common.models.anomaly import AnomalyAnalysisResponse
+from app.common.models.water_usage import WaterUsageAnalysisRequest
 from app.core.exceptions import InputValidationError
 from app.core.logging import log_event, mask_household_id
 from app.modules.detector.anomaly_analysis_service import AnomalyAnalysisService
 from app.modules.getter.water_usage_getter import WaterUsageGetter
-from app.schemas.anomaly import AnomalyAnalysisResponse
-from app.schemas.water_usage import WaterUsageAnalysisRequest
 
 router = APIRouter(prefix="/api/v1/anomalies", tags=["anomalies"])
 logger = logging.getLogger(__name__)

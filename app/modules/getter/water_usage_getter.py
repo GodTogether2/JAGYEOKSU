@@ -6,8 +6,8 @@
 import re
 from datetime import UTC, datetime
 
+from app.common.models.water_usage import NormalizedWaterUsage, WaterUsageAnalysisRequest
 from app.core.exceptions import InputValidationError
-from app.schemas.water_usage import NormalizedWaterUsage, WaterUsageAnalysisRequest
 
 HOUSEHOLD_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]+$")
 

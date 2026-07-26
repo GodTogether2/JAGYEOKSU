@@ -1,17 +1,5 @@
-"""공통 응답 스키마."""
+"""이전 import 경로를 지원하는 공용 응답 모델 호환 모듈."""
 
-from pydantic import BaseModel
+from app.common.models.common import ErrorResponse, HealthResponse
 
-
-class HealthResponse(BaseModel):
-    """서비스 상태 응답."""
-
-    status: str
-    service: str
-    openai_configured: bool
-
-
-class ErrorResponse(BaseModel):
-    """내부 상세를 숨긴 표준 오류 응답."""
-
-    detail: str
+__all__ = ["ErrorResponse", "HealthResponse"]
