@@ -1,0 +1,33 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "CareSignal API 서버",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["app.main:app", "--host", "127.0.0.1", "--port", "8000"],
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "justMyCode": true
+    },
+    {
+      "name": "전체 테스트 디버그",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["-s", "-vv"],
+      "cwd": "${workspaceFolder}",
+      "justMyCode": true
+    },
+    {
+      "name": "샘플 생성기 디버그",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/generate_sample_data.py",
+      "cwd": "${workspaceFolder}",
+      "justMyCode": true
+    }
+  ]
+}
+
