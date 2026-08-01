@@ -115,7 +115,7 @@ NormalizedWaterUsage(
 )
 ```
 
-Getter는 프롬프트를 만들거나 OpenAI를 호출하지 않으며 이상 여부도 판단하지 않습니다.
+Getter는 프롬프트를 만들거나 LLM을 호출하지 않으며 이상 여부도 판단하지 않습니다.
 
 ## 422 오류 조건
 
@@ -143,7 +143,7 @@ Pydantic 스키마 단계의 오류는 문제가 발생한 필드 위치와 오�
 
 ## 실행 가능한 cURL
 
-API 키 없이 Getter와 OFFLINE 로컬 처리 확인:
+Ollama 없이 Getter와 OFFLINE 로컬 처리 확인:
 
 ```bash
 curl -X POST "http://127.0.0.1:8000/api/v1/anomalies/analyze" \
@@ -151,7 +151,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/anomalies/analyze" \
   --data-binary "@samples/meter_offline_request.json"
 ```
 
-Getter와 Service를 통과해 OpenAIConnector까지 확인:
+Getter와 Service를 통과해 LocalLLMConnector까지 확인:
 
 ```bash
 curl -X POST "http://127.0.0.1:8000/api/v1/anomalies/analyze" \
@@ -159,7 +159,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/anomalies/analyze" \
   --data-binary "@samples/normal_request.json"
 ```
 
-두 번째 요청은 `.env`에 실제 `OPENAI_API_KEY`와 `OPENAI_MODEL`이 필요합니다.
+두 번째 요청은 로컬에 Ollama 서버가 실행 중이고 `qwen3:8b` 모델이 받아져 있어야 합니다.
 
 ## 디버깅 중 확인할 변수
 
