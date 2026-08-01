@@ -17,7 +17,7 @@ from app.common.models.anomaly import (
 from app.common.models.water_usage import NormalizedWaterUsage
 from app.core.config import Settings
 from app.core.exceptions import InvalidLLMResponseError
-from app.modules.ai.openai_connector import AnalysisConnector
+from app.modules.ai.local_llm_connector import AnalysisConnector
 from app.utils.datetime_utils import utc_now
 from app.utils.feature_utils import calculate_features
 
@@ -77,8 +77,8 @@ class AnomalyAnalysisService:
             request_id=data.request_id,
             household_id=data.household_id,
             limitations=list(dict.fromkeys(limitations))[:5],
-            model_provider="openai",
-            model_name=self.settings.openai_model,
+            model_provider="ollama",
+            model_name=self.settings.llm_model,
             analyzed_at=utc_now(),
         )
 

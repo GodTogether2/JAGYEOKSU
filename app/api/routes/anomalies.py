@@ -39,6 +39,6 @@ async def analyze_anomaly(
         path="/api/v1/anomalies/analyze",
         duration_ms=round((time.perf_counter() - started) * 1000, 2),
         status=result.status,
-        openai_success=result.model_provider == "openai",
+        llm_success=result.model_provider == "ollama",
     )
     return result
