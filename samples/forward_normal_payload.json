@@ -1,0 +1,122 @@
+{
+  "request_id": "req-normal-001",
+  "household_id": "demo-normal-001",
+  "meter_status": "ONLINE",
+  "expected_absence": false,
+  "measurements": [
+    {
+      "timestamp": "2026-07-19T01:00:00+00:00",
+      "usage_liter": 0.15
+    },
+    {
+      "timestamp": "2026-07-19T02:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T03:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T04:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T05:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T06:00:00+00:00",
+      "usage_liter": 2.6
+    },
+    {
+      "timestamp": "2026-07-19T07:00:00+00:00",
+      "usage_liter": 3.0
+    },
+    {
+      "timestamp": "2026-07-19T08:00:00+00:00",
+      "usage_liter": 3.4
+    },
+    {
+      "timestamp": "2026-07-19T09:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T10:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T11:00:00+00:00",
+      "usage_liter": 0.15
+    },
+    {
+      "timestamp": "2026-07-19T12:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T13:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T14:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T15:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T16:00:00+00:00",
+      "usage_liter": 0.15
+    },
+    {
+      "timestamp": "2026-07-19T17:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T18:00:00+00:00",
+      "usage_liter": 3.8
+    },
+    {
+      "timestamp": "2026-07-19T19:00:00+00:00",
+      "usage_liter": 2.8
+    },
+    {
+      "timestamp": "2026-07-19T20:00:00+00:00",
+      "usage_liter": 3.3
+    },
+    {
+      "timestamp": "2026-07-19T21:00:00+00:00",
+      "usage_liter": 3.8
+    },
+    {
+      "timestamp": "2026-07-19T22:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T23:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-20T00:00:00+00:00",
+      "usage_liter": 0.0
+    }
+  ],
+  "analysis_result": {
+    "status": "NORMAL",
+    "anomaly_score": 12,
+    "confidence": 0.86,
+    "summary": "평소 수도 사용 패턴과 유사합니다.",
+    "evidence": [
+      {
+        "code": "STABLE_DAILY_PATTERN",
+        "message": "최근 사용량이 기준선 범위 안에 있습니다.",
+        "observed_value": 41.2,
+        "baseline_value": 43.0
+      }
+    ],
+    "recommended_action": "NONE",
+    "limitations": [
+      "수도 사용량만을 분석한 참고정보입니다."
+    ]
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "request_id": "req-missing-001",
+  "household_id": "demo-missing-001",
+  "meter_status": "ONLINE",
+  "expected_absence": false,
+  "measurements": [
+    {
+      "timestamp": "2026-07-19T02:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T03:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T04:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T06:00:00+00:00",
+      "usage_liter": 2.6
+    },
+    {
+      "timestamp": "2026-07-19T07:00:00+00:00",
+      "usage_liter": 3.0
+    },
+    {
+      "timestamp": "2026-07-19T08:00:00+00:00",
+      "usage_liter": 3.4
+    },
+    {
+      "timestamp": "2026-07-19T10:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T11:00:00+00:00",
+      "usage_liter": 0.15
+    },
+    {
+      "timestamp": "2026-07-19T12:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T14:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T15:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T16:00:00+00:00",
+      "usage_liter": 0.15
+    },
+    {
+      "timestamp": "2026-07-19T18:00:00+00:00",
+      "usage_liter": 3.8
+    },
+    {
+      "timestamp": "2026-07-19T19:00:00+00:00",
+      "usage_liter": 2.8
+    },
+    {
+      "timestamp": "2026-07-19T20:00:00+00:00",
+      "usage_liter": 3.3
+    },
+    {
+      "timestamp": "2026-07-19T22:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T23:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-20T00:00:00+00:00",
+      "usage_liter": 0.0
+    }
+  ],
+  "analysis_result": {
+    "status": "DATA_ERROR",
+    "anomaly_score": 0,
+    "confidence": 1.0,
+    "summary": "측정 데이터 품질 확인이 우선입니다.",
+    "evidence": [
+      {
+        "code": "METER_OR_DATA_QUALITY",
+        "message": "측정값 누락 또는 계량기 상태 확인이 필요합니다.",
+        "observed_value": "UNKNOWN",
+        "baseline_value": null
+      }
+    ],
+    "recommended_action": "CHECK_DEVICE",
+    "limitations": [
+      "데이터 품질 문제는 생활패턴으로 해석하지 않습니다."
+    ]
+  }
+}
