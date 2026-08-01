@@ -30,6 +30,7 @@ async def test_structured_response() -> None:
         assert kwargs["messages"][0] == {"role": "system", "content": "system"}
         assert kwargs["messages"][1]["role"] == "user"
         assert "format" in kwargs
+        assert kwargs["think"] is False
         return _response(expected.model_dump_json())
 
     result = await LocalLLMConnector(Settings(), request_callable=request).analyze(

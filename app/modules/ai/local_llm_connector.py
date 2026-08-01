@@ -85,12 +85,14 @@ class LocalLLMConnector:
                     model=self.settings.llm_model,
                     messages=messages,
                     format=AnomalyLLMResult.model_json_schema(),
+                    think=False,
                 )
             else:
                 response = await self.client.chat(
                     model=self.settings.llm_model,
                     messages=messages,
                     format=AnomalyLLMResult.model_json_schema(),
+                    think=False,
                 )
             content = getattr(getattr(response, "message", None), "content", None)
             if not isinstance(content, str) or not content:
