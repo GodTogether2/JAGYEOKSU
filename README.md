@@ -4,17 +4,17 @@ CareSignal API는 합성 수도 사용량을 기반으로 복지 담당자의 �
 
 실제 개인정보는 입력하지 마세요. 이름, 주소, 전화번호, 주민등록번호는 스키마가 거부하며 `household_id`에는 영문·숫자·하이픈·밑줄로 된 익명 식별자만 허용합니다.
 
-## 담당자와 실제 계약
+## 기능별 계약
 
-세 담당자의 경계는 입력 정규화, AI 분석, 결과 전달로 나뉩니다.
+세 기능의 경계는 입력 정규화, AI 분석, 결과 전달로 나뉩니다.
 
-| 담당 | 모듈 | 책임 | 하지 않는 일 | 단독 테스트 |
+| 기능 | 모듈 | 책임 | 하지 않는 일 | 단독 테스트 |
 |---|---|---|---|---|
-| 홍성표 | `WaterUsageGetter` | API 요청 검증, 정렬, `NormalizedWaterUsage` 생성 | AI 호출, 결과 전달 | `pytest tests/unit/test_water_usage_getter.py` |
-| 문범석 | `OpenAIConnector` | 시스템 프롬프트와 사용자 payload를 받아 `AnomalyLLMResult` 반환 | 외부 결과 엔드포인트로 전달 | `pytest tests/unit/test_openai_connector.py` |
-| 최지욱 | `AnomalyAnalysisService` | 문범석 결과를 원 요청 포맷에 `analysis_result` 키로 추가해 다른 엔드포인트로 POST | SDK 초기화, HTTP 라우팅, 입력 정규화 | `pytest tests/unit/test_anomaly_analysis_service.py` |
+| 입력 정규화 | `WaterUsageGetter` | API 요청 검증, 정렬, `NormalizedWaterUsage` 생성 | AI 호출, 결과 전달 | `pytest tests/unit/test_water_usage_getter.py` |
+| AI 분석 | `OpenAIConnector` | 시스템 프롬프트와 사용자 payload를 받아 `AnomalyLLMResult` 반환 | 외부 결과 엔드포인트로 전달 | `pytest tests/unit/test_openai_connector.py` |
+| 결과 전달 | `AnomalyAnalysisService` | AI 분석 결과를 원 요청 포맷에 `analysis_result` 키로 추가해 다른 엔드포인트로 POST | SDK 초기화, HTTP 라우팅, 입력 정규화 | `pytest tests/unit/test_anomaly_analysis_service.py` |
 
-최지욱 파트의 핵심 출력 포맷은 다음처럼 **홍성표가 처음 받는 요청 포맷 + 키-밸류 하나**입니다.
+결과 전달 기능의 핵심 출력 포맷은 다음처럼 **초기 요청 포맷 + 키-밸류 하나**입니다.
 
 ```json
 {
@@ -52,7 +52,7 @@ FastAPI Router
 → AnomalyAnalysisResponse
 ```
 
-라우터는 의존성 연결만 담당합니다. Getter는 입력을 내부 구조체로 정규화합니다. Connector는 OpenAI 호출만 담당합니다. Service는 문범석 결과를 받은 뒤 원 요청 형태를 재구성하고 `analysis_result`만 추가해 외부 엔드포인트로 전송합니다.
+라우터는 의존성 연결만 담당합니다. Getter는 입력을 내부 구조체로 정규화합니다. Connector는 OpenAI 호출만 담당합니다. Service는 AI 분석 결과를 받은 뒤 원 요청 형태를 재구성하고 `analysis_result`만 추가해 외부 엔드포인트로 전송합니다.
 
 `RESULT_FORWARD_ENDPOINT_URL`이 비어 있으면 로컬 개발과 테스트를 위해 외부 전송을 생략합니다.
 
@@ -113,7 +113,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/anomalies/analyze" \
 4. `app/modules/ai/openai_connector.py`의 `analyze`
 5. `app/modules/detector/anomaly_analysis_service.py`의 `forward_analysis_result`
 
-문범석 모듈 없이 최지욱 파트를 개발할 때는 `tests.conftest.FakeOpenAIConnector`를 주입합니다. 외부 endpoint 호출 없이 검증할 때는 `forward_callable` 테스트 대역을 주입합니다.
+실제 AI 호출 없이 결과 전달 기능을 개발할 때는 `tests.conftest.FakeOpenAIConnector`를 주입합니다. 외부 endpoint 호출 없이 검증할 때는 `forward_callable` 테스트 대역을 주입합니다.
 
 ## 품질 검사
 

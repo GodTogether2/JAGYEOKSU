@@ -1,6 +1,6 @@
-# 최지욱 파트 사용법
+# Downstream 전달 기능 사용법
 
-최지욱 파트는 문범석 `OpenAIConnector`가 만든 `AnomalyLLMResult`를 받아서, 홍성표가 처음 받는 요청 JSON에 `analysis_result` 키 하나를 추가한 뒤 다른 endpoint로 POST한다.
+Downstream 전달 기능은 `OpenAIConnector`가 만든 `AnomalyLLMResult`를 받아서, 최초 요청 JSON에 `analysis_result` 키 하나를 추가한 뒤 다른 endpoint로 POST한다.
 
 ## 받는 사람이 받는 포맷
 

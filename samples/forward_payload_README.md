@@ -1,6 +1,6 @@
-# 최지욱 downstream 전달 payload
+# Downstream 전달 payload
 
-`AnomalyAnalysisService`가 `RESULT_FORWARD_ENDPOINT_URL`로 POST하는 JSON은 홍성표 입력 포맷에 문범석 결과를 `analysis_result` 키로 하나 더 붙인 형태입니다.
+`AnomalyAnalysisService`가 `RESULT_FORWARD_ENDPOINT_URL`로 POST하는 JSON은 초기 입력 포맷에 AI 분석 결과를 `analysis_result` 키로 하나 더 붙인 형태입니다.
 
 ## 최상위 필드
 
@@ -11,7 +11,7 @@
 | `meter_status` | `ONLINE` \| `OFFLINE` \| `UNKNOWN` | 기존 계량기 상태 |
 | `expected_absence` | boolean | 기존 예정 부재 여부 |
 | `measurements` | array | 기존 수도 사용량 시계열 |
-| `analysis_result` | object | 문범석 `AnomalyLLMResult` |
+| `analysis_result` | object | AI 분석 결과 `AnomalyLLMResult` |
 
 `measurements` 항목:
 

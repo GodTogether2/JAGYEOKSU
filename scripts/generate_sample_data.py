@@ -42,7 +42,7 @@ def build(name: str, *, hours: int = 24 * 30, expected: bool = False) -> dict[st
 
 
 def analysis_result(status: str) -> dict[str, object]:
-    """downstream 전달 payload에 붙일 문범석 결과 더미."""
+    """downstream 전달 payload에 붙일 AI 분석 결과 더미."""
     cases: dict[str, dict[str, object]] = {
         "NORMAL": {
             "anomaly_score": 12,
@@ -111,7 +111,7 @@ def analysis_result(status: str) -> dict[str, object]:
 def build_forward_payload(
     request_name: str, status: str, *, expected: bool = False
 ) -> dict[str, object]:
-    """홍성표 입력 포맷에 문범석 결과 키 하나만 추가한다."""
+    """초기 입력 포맷에 AI 분석 결과 키 하나만 추가한다."""
     return {
         **build(request_name, hours=24, expected=expected),
         "analysis_result": analysis_result(status),

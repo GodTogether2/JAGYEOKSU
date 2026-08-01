@@ -1,6 +1,6 @@
 """OpenAI Responses API Structured Outputs 어댑터.
 
-담당: 문범석
+기능: AI 분석
 """
 
 import json

@@ -1,6 +1,6 @@
-"""문범석 분석 결과를 원 요청 포맷에 붙여 외부로 전달한다.
+"""AI 분석 결과를 원 요청 포맷에 붙여 외부로 전달한다.
 
-담당: 최지욱
+기능: 결과 전달
 """
 
 from collections.abc import Awaitable, Callable
@@ -119,7 +119,7 @@ class AnomalyAnalysisService:
     async def forward_analysis_result(
         self, data: NormalizedWaterUsage, result: AnomalyLLMResult
     ) -> None:
-        """문범석 결과를 원 요청 포맷에 붙여 다음 엔드포인트로 보낸다."""
+        """AI 분석 결과를 원 요청 포맷에 붙여 다음 엔드포인트로 보낸다."""
         url = self.settings.result_forward_endpoint_url.strip()
         if not url:
             return
@@ -136,7 +136,7 @@ class AnomalyAnalysisService:
     def build_forward_payload(
         self, data: NormalizedWaterUsage, result: AnomalyLLMResult
     ) -> dict[str, object]:
-        """홍성표 입력 포맷에 문범석 분석 결과만 하나 더 붙인다."""
+        """초기 입력 포맷에 AI 분석 결과만 하나 더 붙인다."""
         request_payload = WaterUsageAnalysisRequest(
             request_id=data.request_id,
             household_id=data.household_id,
