@@ -159,7 +159,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/anomalies/analyze" \
   --data-binary "@samples/normal_request.json"
 ```
 
-두 번째 요청은 로컬에 Ollama 서버가 실행 중이고 `qwen3:8b` 모델이 받아져 있어야 합니다.
+두 번째 요청은 로컬에 Ollama 서버가 실행 중이고 `qwen3:8b` 모델이 받아져 있어야 합니다. downstream 전송까지 확인하려면 `RESULT_FORWARD_ENDPOINT_URL`도 설정합니다.
 
 ## 디버깅 중 확인할 변수
 

@@ -1,12 +1,14 @@
-"""특징 계산과 안전한 분석 흐름을 조정한다.
+"""AI 분석 결과를 원 요청 포맷에 붙여 외부로 전달한다.
 
-담당: 최지욱
+기능: 결과 전달
 """
 
+from collections.abc import Awaitable, Callable
 from datetime import timedelta
 from pathlib import Path
 from typing import Any
 
+import httpx
 from pydantic import ValidationError
 
 from app.common.models.anomaly import (
@@ -14,7 +16,7 @@ from app.common.models.anomaly import (
     AnomalyEvidence,
     AnomalyLLMResult,
 )
-from app.common.models.water_usage import NormalizedWaterUsage
+from app.common.models.water_usage import NormalizedWaterUsage, WaterUsageAnalysisRequest
 from app.core.config import Settings
 from app.core.exceptions import InvalidLLMResponseError
 from app.modules.ai.local_llm_connector import AnalysisConnector
@@ -22,14 +24,21 @@ from app.utils.datetime_utils import utc_now
 from app.utils.feature_utils import calculate_features
 
 PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "anomaly_system_prompt.txt"
+ForwardCallable = Callable[[str, dict[str, object]], Awaitable[None]]
 
 
 class AnomalyAnalysisService:
-    """로컬 안전장치를 적용하고 Connector를 호출해 최종 응답을 조립한다."""
+    """Connector 결과를 검증하고 downstream 전달 payload를 만든다."""
 
-    def __init__(self, connector: AnalysisConnector, settings: Settings) -> None:
+    def __init__(
+        self,
+        connector: AnalysisConnector,
+        settings: Settings,
+        forward_callable: ForwardCallable | None = None,
+    ) -> None:
         self.connector = connector
         self.settings = settings
+        self._forward_callable = forward_callable
 
     async def analyze(self, data: NormalizedWaterUsage) -> AnomalyAnalysisResponse:
         """오프라인·품질 오류를 우선 처리하고 그 외에만 GPT를 호출한다."""
@@ -58,6 +67,7 @@ class AnomalyAnalysisService:
             validated = AnomalyLLMResult.model_validate(result)
         except ValidationError as exc:
             raise InvalidLLMResponseError("LLM 결과 검증 실패") from exc
+        await self.forward_analysis_result(data, validated)
 
         limitations = list(validated.limitations)
         if features["baseline_days"] < 30:
@@ -105,6 +115,36 @@ class AnomalyAnalysisService:
             "features": features,
             "recent_measurements": recent,
         }
+
+    async def forward_analysis_result(
+        self, data: NormalizedWaterUsage, result: AnomalyLLMResult
+    ) -> None:
+        """AI 분석 결과를 원 요청 포맷에 붙여 다음 엔드포인트로 보낸다."""
+        url = self.settings.result_forward_endpoint_url.strip()
+        if not url:
+            return
+        payload = self.build_forward_payload(data, result)
+        if self._forward_callable is not None:
+            await self._forward_callable(url, payload)
+            return
+        async with httpx.AsyncClient(
+            timeout=self.settings.result_forward_timeout_seconds
+        ) as client:
+            response = await client.post(url, json=payload)
+            response.raise_for_status()
+
+    def build_forward_payload(
+        self, data: NormalizedWaterUsage, result: AnomalyLLMResult
+    ) -> dict[str, object]:
+        """초기 입력 포맷에 AI 분석 결과만 하나 더 붙인다."""
+        request_payload = WaterUsageAnalysisRequest(
+            request_id=data.request_id,
+            household_id=data.household_id,
+            meter_status=data.meter_status,
+            expected_absence=data.expected_absence,
+            measurements=list(data.measurements),
+        ).model_dump(mode="json")
+        return {**request_payload, "analysis_result": result.model_dump(mode="json")}
 
     def _local_response(
         self,

@@ -1,6 +1,19 @@
 # Detector 모듈
 
-담당자는 최지욱입니다. `AnomalyAnalysisService`는 정규화 입력에서 객관 특징을 계산하고, 분리된 시스템 프롬프트와 최근 72시간 payload를 Connector에 전달하며, 안전 정책 및 최종 응답을 검증합니다.
+`AnomalyAnalysisService`는 AI Connector가 반환한 `AnomalyLLMResult`를 받아, 최초 요청인 `WaterUsageAnalysisRequest` 포맷에 `analysis_result` 키 하나를 추가한 뒤 `RESULT_FORWARD_ENDPOINT_URL`로 POST합니다. OFFLINE과 누락률 초과는 Connector를 호출하지 않습니다.
 
-문범석 담당 모듈 없이 개발할 때는 `tests.conftest.FakeLLMConnector`를 주입합니다. OFFLINE과 누락률 초과는 Connector를 호출하지 않습니다. 변경 후 `pytest tests/unit/test_anomaly_analysis_service.py`를 실행합니다.
+결과 전달 기능에서 유지해야 하는 계약:
 
+- 외부 전송 payload는 기존 요청 필드 `request_id`, `household_id`, `meter_status`, `expected_absence`, `measurements`를 그대로 유지합니다.
+- 추가 필드는 `analysis_result` 하나입니다.
+- `analysis_result` 값은 AI Connector가 반환한 `AnomalyLLMResult.model_dump(mode="json")`입니다.
+- `RESULT_FORWARD_ENDPOINT_URL`이 비어 있으면 로컬 개발과 테스트를 위해 전송하지 않습니다.
+- SDK 초기화와 실제 Ollama 호출 세부 구현은 AI Connector 책임입니다.
+
+실제 AI Connector 없이 개발할 때는 `tests.conftest.FakeLLMConnector`를 주입합니다. 외부 endpoint 없이 전송 payload만 검증할 때는 `forward_callable` 테스트 대역을 주입합니다.
+
+변경 후 실행:
+
+```bash
+pytest tests/unit/test_anomaly_analysis_service.py
+```

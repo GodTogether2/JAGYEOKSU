@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     llm_base_url: str = "http://localhost:11434"
     llm_timeout_seconds: float = Field(default=180, gt=0)
     llm_max_retries: int = Field(default=2, ge=0, le=2)
+    result_forward_endpoint_url: str = ""
+    result_forward_timeout_seconds: float = Field(default=10, gt=0)
     missing_ratio_threshold: float = Field(default=0.2, ge=0, le=1)
     cors_origins: str = ""
 
