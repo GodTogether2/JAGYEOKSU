@@ -1,4 +1,4 @@
-"""실제 OpenAI 호출 없이 공통 합성 입력과 Fake를 제공한다."""
+"""실제 LLM 호출 없이 공통 합성 입력과 Fake를 제공한다."""
 
 from datetime import UTC, datetime, timedelta
 from typing import Any
@@ -9,7 +9,7 @@ from app.schemas.anomaly import AnomalyEvidence, AnomalyLLMResult
 from app.schemas.water_usage import WaterMeasurement, WaterUsageAnalysisRequest
 
 
-class FakeOpenAIConnector:
+class FakeLLMConnector:
     """담당 모듈 사이의 계약을 구현하는 테스트 대역."""
 
     def __init__(self, result: AnomalyLLMResult | None = None) -> None:
