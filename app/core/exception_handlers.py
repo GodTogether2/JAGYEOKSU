@@ -7,10 +7,9 @@ from fastapi.responses import JSONResponse
 
 from app.core.exceptions import (
     InvalidLLMResponseError,
-    OpenAIAuthError,
-    OpenAIRateLimitError,
-    OpenAIServiceError,
-    OpenAITimeoutError,
+    LLMConnectionError,
+    LLMServiceError,
+    LLMTimeoutError,
 )
 
 logger = logging.getLogger(__name__)
@@ -19,22 +18,16 @@ logger = logging.getLogger(__name__)
 def register_exception_handlers(app: FastAPI) -> None:
     """외부 장애 유형별 요구 상태 코드를 등록한다."""
 
-    @app.exception_handler(OpenAITimeoutError)
-    async def timeout_handler(_: Request, __: OpenAITimeoutError) -> JSONResponse:
+    @app.exception_handler(LLMTimeoutError)
+    async def timeout_handler(_: Request, __: LLMTimeoutError) -> JSONResponse:
         return JSONResponse(
             status_code=504, content={"detail": "AI 분석 요청 시간이 초과됐습니다."}
         )
 
-    @app.exception_handler(OpenAIRateLimitError)
-    async def rate_limit_handler(_: Request, __: OpenAIRateLimitError) -> JSONResponse:
+    @app.exception_handler(LLMConnectionError)
+    async def connection_handler(_: Request, __: LLMConnectionError) -> JSONResponse:
         return JSONResponse(
-            status_code=503, content={"detail": "AI 분석 서비스가 일시적으로 혼잡합니다."}
-        )
-
-    @app.exception_handler(OpenAIAuthError)
-    async def auth_handler(_: Request, __: OpenAIAuthError) -> JSONResponse:
-        return JSONResponse(
-            status_code=502, content={"detail": "AI 분석 서비스를 사용할 수 없습니다."}
+            status_code=503, content={"detail": "AI 분석 서비스가 일시적으로 연결되지 않습니다."}
         )
 
     @app.exception_handler(InvalidLLMResponseError)
@@ -43,8 +36,8 @@ def register_exception_handlers(app: FastAPI) -> None:
             status_code=502, content={"detail": "AI 분석 결과를 검증할 수 없습니다."}
         )
 
-    @app.exception_handler(OpenAIServiceError)
-    async def service_handler(_: Request, __: OpenAIServiceError) -> JSONResponse:
+    @app.exception_handler(LLMServiceError)
+    async def service_handler(_: Request, __: LLMServiceError) -> JSONResponse:
         return JSONResponse(
             status_code=502, content={"detail": "AI 분석 서비스 호출에 실패했습니다."}
         )
