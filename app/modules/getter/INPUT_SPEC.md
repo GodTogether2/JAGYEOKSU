@@ -151,7 +151,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/anomalies/analyze" \
   --data-binary "@samples/meter_offline_request.json"
 ```
 
-Getter와 Service를 통과해 OpenAIConnector까지 확인:
+Getter, Service, OpenAIConnector 흐름 확인:
 
 ```bash
 curl -X POST "http://127.0.0.1:8000/api/v1/anomalies/analyze" \
@@ -159,7 +159,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/anomalies/analyze" \
   --data-binary "@samples/normal_request.json"
 ```
 
-두 번째 요청은 `.env`에 실제 `OPENAI_API_KEY`와 `OPENAI_MODEL`이 필요합니다.
+두 번째 요청은 `.env`에 실제 `OPENAI_API_KEY`와 `OPENAI_MODEL`이 필요합니다. downstream 전송까지 확인하려면 `RESULT_FORWARD_ENDPOINT_URL`도 설정합니다.
 
 ## 디버깅 중 확인할 변수
 

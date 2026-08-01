@@ -1,0 +1,122 @@
+{
+  "request_id": "req-no_usage-001",
+  "household_id": "demo-no-usage-001",
+  "meter_status": "ONLINE",
+  "expected_absence": false,
+  "measurements": [
+    {
+      "timestamp": "2026-07-19T01:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T02:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T03:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T04:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T05:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T06:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T07:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T08:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T09:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T10:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T11:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T12:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T13:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T14:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T15:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T16:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T17:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T18:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T19:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T20:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T21:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T22:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T23:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-20T00:00:00+00:00",
+      "usage_liter": 0.0
+    }
+  ],
+  "analysis_result": {
+    "status": "CHECK_REQUIRED",
+    "anomaly_score": 78,
+    "confidence": 0.81,
+    "summary": "장시간 사용량 변화가 없어 전화 확인이 필요합니다.",
+    "evidence": [
+      {
+        "code": "ZERO_USAGE_STREAK",
+        "message": "최근 30시간 동안 의미 있는 사용량이 없습니다.",
+        "observed_value": 30,
+        "baseline_value": 6
+      }
+    ],
+    "recommended_action": "PHONE_CHECK",
+    "limitations": [
+      "수도 사용 외 생활 정보는 포함되지 않았습니다."
+    ]
+  }
+}

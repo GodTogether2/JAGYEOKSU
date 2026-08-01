@@ -1,0 +1,122 @@
+{
+  "request_id": "req-expected_absence-001",
+  "household_id": "demo-expected-absence-001",
+  "meter_status": "ONLINE",
+  "expected_absence": true,
+  "measurements": [
+    {
+      "timestamp": "2026-07-19T01:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T02:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T03:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T04:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T05:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T06:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T07:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T08:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T09:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T10:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T11:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T12:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T13:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T14:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T15:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T16:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T17:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T18:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T19:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T20:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T21:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T22:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-19T23:00:00+00:00",
+      "usage_liter": 0.0
+    },
+    {
+      "timestamp": "2026-07-20T00:00:00+00:00",
+      "usage_liter": 0.0
+    }
+  ],
+  "analysis_result": {
+    "status": "OBSERVE",
+    "anomaly_score": 42,
+    "confidence": 0.72,
+    "summary": "최근 사용량 감소가 있어 추이를 더 확인하는 것이 좋습니다.",
+    "evidence": [
+      {
+        "code": "LOW_RECENT_USAGE",
+        "message": "최근 24시간 사용량이 평소보다 낮습니다.",
+        "observed_value": 5.4,
+        "baseline_value": 18.7
+      }
+    ],
+    "recommended_action": "RECHECK_LATER",
+    "limitations": [
+      "예정된 외출 정보가 있으면 해석이 달라질 수 있습니다."
+    ]
+  }
+}

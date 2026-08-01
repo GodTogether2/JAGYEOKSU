@@ -41,6 +41,83 @@ def build(name: str, *, hours: int = 24 * 30, expected: bool = False) -> dict[st
     }
 
 
+def analysis_result(status: str) -> dict[str, object]:
+    """downstream 전달 payload에 붙일 AI 분석 결과 더미."""
+    cases: dict[str, dict[str, object]] = {
+        "NORMAL": {
+            "anomaly_score": 12,
+            "confidence": 0.86,
+            "summary": "평소 수도 사용 패턴과 유사합니다.",
+            "evidence": [
+                {
+                    "code": "STABLE_DAILY_PATTERN",
+                    "message": "최근 사용량이 기준선 범위 안에 있습니다.",
+                    "observed_value": 41.2,
+                    "baseline_value": 43.0,
+                }
+            ],
+            "recommended_action": "NONE",
+            "limitations": ["수도 사용량만을 분석한 참고정보입니다."],
+        },
+        "OBSERVE": {
+            "anomaly_score": 42,
+            "confidence": 0.72,
+            "summary": "최근 사용량 감소가 있어 추이를 더 확인하는 것이 좋습니다.",
+            "evidence": [
+                {
+                    "code": "LOW_RECENT_USAGE",
+                    "message": "최근 24시간 사용량이 평소보다 낮습니다.",
+                    "observed_value": 5.4,
+                    "baseline_value": 18.7,
+                }
+            ],
+            "recommended_action": "RECHECK_LATER",
+            "limitations": ["예정된 외출 정보가 있으면 해석이 달라질 수 있습니다."],
+        },
+        "CHECK_REQUIRED": {
+            "anomaly_score": 78,
+            "confidence": 0.81,
+            "summary": "장시간 사용량 변화가 없어 전화 확인이 필요합니다.",
+            "evidence": [
+                {
+                    "code": "ZERO_USAGE_STREAK",
+                    "message": "최근 30시간 동안 의미 있는 사용량이 없습니다.",
+                    "observed_value": 30,
+                    "baseline_value": 6,
+                }
+            ],
+            "recommended_action": "PHONE_CHECK",
+            "limitations": ["수도 사용 외 생활 정보는 포함되지 않았습니다."],
+        },
+        "DATA_ERROR": {
+            "anomaly_score": 0,
+            "confidence": 1.0,
+            "summary": "측정 데이터 품질 확인이 우선입니다.",
+            "evidence": [
+                {
+                    "code": "METER_OR_DATA_QUALITY",
+                    "message": "측정값 누락 또는 계량기 상태 확인이 필요합니다.",
+                    "observed_value": "UNKNOWN",
+                    "baseline_value": None,
+                }
+            ],
+            "recommended_action": "CHECK_DEVICE",
+            "limitations": ["데이터 품질 문제는 생활패턴으로 해석하지 않습니다."],
+        },
+    }
+    return {"status": status, **cases[status]}
+
+
+def build_forward_payload(
+    request_name: str, status: str, *, expected: bool = False
+) -> dict[str, object]:
+    """초기 입력 포맷에 AI 분석 결과 키 하나만 추가한다."""
+    return {
+        **build(request_name, hours=24, expected=expected),
+        "analysis_result": analysis_result(status),
+    }
+
+
 def main() -> None:
     """요구된 여섯 시나리오와 대표 별칭 파일을 생성한다."""
     scenarios = {
@@ -50,6 +127,12 @@ def main() -> None:
         "meter_offline_request.json": build("meter_offline"),
         "continuous_small_request.json": build("continuous_small"),
         "missing_data_request.json": build("missing"),
+        "forward_normal_payload.json": build_forward_payload("normal", "NORMAL"),
+        "forward_observe_payload.json": build_forward_payload(
+            "expected_absence", "OBSERVE", expected=True
+        ),
+        "forward_check_required_payload.json": build_forward_payload("no_usage", "CHECK_REQUIRED"),
+        "forward_data_error_payload.json": build_forward_payload("missing", "DATA_ERROR"),
     }
     SAMPLES.mkdir(exist_ok=True)
     for filename, payload in scenarios.items():

@@ -1,4 +1,4 @@
-"""AnomalyAnalysisService 계산·안전장치 테스트."""
+"""AnomalyAnalysisService 안전장치와 downstream 전달 테스트."""
 
 import pytest
 from pydantic import ValidationError
@@ -44,6 +44,34 @@ async def test_absence_and_72_hours_payload(request_factory) -> None:
     assert payload["expected_absence"] is True
     assert len(payload["recent_measurements"]) <= 73
     assert any("예정된 외출" in item for item in result.limitations)
+
+
+@pytest.mark.asyncio
+async def test_forwards_original_request_shape_with_llm_result(request_factory) -> None:
+    fake = FakeOpenAIConnector()
+    forwarded: list[tuple[str, dict[str, object]]] = []
+
+    async def forward(url: str, payload: dict[str, object]) -> None:
+        forwarded.append((url, payload))
+
+    request = request_factory(hours=24)
+    data = WaterUsageGetter().normalize(request, now=request.measurements[-1].timestamp)
+
+    await AnomalyAnalysisService(
+        fake,
+        Settings(result_forward_endpoint_url="https://example.test/results"),
+        forward_callable=forward,
+    ).analyze(data)
+
+    assert forwarded == [
+        (
+            "https://example.test/results",
+            {
+                **request.model_dump(mode="json"),
+                "analysis_result": fake.result.model_dump(mode="json"),
+            },
+        )
+    ]
 
 
 def test_invalid_score_and_forbidden_language_rejected() -> None:
