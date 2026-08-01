@@ -56,6 +56,8 @@ FastAPI Router
 
 `RESULT_FORWARD_ENDPOINT_URL`이 비어 있으면 로컬 개발과 테스트를 위해 외부 전송을 생략합니다.
 
+Downstream 수신 endpoint를 개발하는 쪽은 [Downstream 전달 payload 수신 개발 가이드](docs/downstream-forwarding-usage.md)만 보면 됩니다.
+
 ## 환경변수
 
 ```env
