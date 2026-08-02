@@ -26,7 +26,7 @@ async def test_structured_response() -> None:
     expected = FakeLLMConnector().result
 
     async def request(**kwargs):
-        assert kwargs["model"] == "qwen3:8b"
+        assert kwargs["model"] == "coolsoon/kanana-1.5-8b"
         assert kwargs["messages"][0] == {"role": "system", "content": "system"}
         assert kwargs["messages"][1]["role"] == "user"
         assert "format" in kwargs

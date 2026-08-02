@@ -11,7 +11,7 @@ CareSignal API는 합성 수도 사용량을 기반으로 복지 담당자의 �
 | 기능 | 모듈 | 책임 | 하지 않는 일 | 단독 테스트 |
 |---|---|---|---|---|
 | 입력 정규화 | `WaterUsageGetter` | API 요청 검증, 정렬, `NormalizedWaterUsage` 생성 | 특징 계산, AI 호출, 결과 전달 | `pytest tests/unit/test_water_usage_getter.py` |
-| AI 분석 | `LocalLLMConnector` | 로컬 Ollama 서버(Qwen3 8B) 호출, 구조화 출력(JSON Schema) 강제, timeout·재시도·오류 변환 | 특징 계산, 비즈니스 프롬프트 작성, 외부 결과 엔드포인트로 전달 | `pytest tests/unit/test_local_llm_connector.py` |
+| AI 분석 | `LocalLLMConnector` | 로컬 Ollama 서버(Kanana 1.5 8B) 호출, 구조화 출력(JSON Schema) 강제, timeout·재시도·오류 변환 | 특징 계산, 비즈니스 프롬프트 작성, 외부 결과 엔드포인트로 전달 | `pytest tests/unit/test_local_llm_connector.py` |
 | 결과 전달 | `AnomalyAnalysisService` | 특징 계산, 안전 게이트, 최종 응답 조립, AI 분석 결과를 원 요청 포맷에 `analysis_result` 키로 추가해 다른 엔드포인트로 POST | SDK 초기화, HTTP 라우팅, 입력 정규화 | `pytest tests/unit/test_anomaly_analysis_service.py` |
 
 결과 전달 기능의 핵심 출력 포맷은 다음처럼 **초기 요청 포맷 + 키-밸류 하나**입니다.
@@ -76,9 +76,9 @@ docs             설계·흐름·한계 문서
 ## 환경변수
 
 ```env
-LLM_MODEL=qwen3:8b
+LLM_MODEL=coolsoon/kanana-1.5-8b
 LLM_BASE_URL=http://localhost:11434
-LLM_TIMEOUT_SECONDS=180
+LLM_TIMEOUT_SECONDS=420
 LLM_MAX_RETRIES=2
 RESULT_FORWARD_ENDPOINT_URL=
 RESULT_FORWARD_TIMEOUT_SECONDS=10
@@ -106,7 +106,7 @@ python -m venv .venv
 pip install -e ".[dev]"
 ```
 
-`.env.example`을 `.env`로 복사하고 필요한 환경변수를 설정합니다. 로컬 Ollama 서버(`LLM_BASE_URL`)가 실행 중이어야 하며, 모델은 `ollama pull qwen3:8b`로 미리 받아둬야 합니다. `RESULT_FORWARD_ENDPOINT_URL`이 없어도 서버, `/health`, OFFLINE 로컬 분석과 테스트는 동작합니다.
+`.env.example`을 `.env`로 복사하고 필요한 환경변수를 설정합니다. 로컬 Ollama 서버(`LLM_BASE_URL`)가 실행 중이어야 하며, 모델은 `ollama pull coolsoon/kanana-1.5-8b`로 미리 받아둬야 합니다. CPU 환경에서는 요청당 4~6분 정도 걸릴 수 있어 `LLM_TIMEOUT_SECONDS`를 넉넉히(기본 420초) 잡았습니다. `RESULT_FORWARD_ENDPOINT_URL`이 없어도 서버, `/health`, OFFLINE 로컬 분석과 테스트는 동작합니다.
 
 ## 실행과 API 호출
 
@@ -131,7 +131,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/anomalies/analyze" \
 4. `app/modules/ai/local_llm_connector.py`의 `analyze`와 `_call_once`
 5. `app/modules/detector/anomaly_analysis_service.py`의 `forward_analysis_result`
 
-실제 Connector까지 추적하려면 Ollama 서버를 실행하고 `qwen3:8b` 모델을 받아둔 뒤 정상 샘플을 호출합니다. Ollama와 외부 endpoint 없이 전 과정을 재현하려면 `전체 테스트 디버그` 구성으로 `tests/integration/test_anomaly_api.py::test_normal_analysis_with_fake`를 실행하거나, `forward_callable` 테스트 대역을 주입합니다. OFFLINE 안전 게이트는 Ollama 없이도 확인할 수 있습니다.
+실제 Connector까지 추적하려면 Ollama 서버를 실행하고 `coolsoon/kanana-1.5-8b` 모델을 받아둔 뒤 정상 샘플을 호출합니다. Ollama와 외부 endpoint 없이 전 과정을 재현하려면 `전체 테스트 디버그` 구성으로 `tests/integration/test_anomaly_api.py::test_normal_analysis_with_fake`를 실행하거나, `forward_callable` 테스트 대역을 주입합니다. OFFLINE 안전 게이트는 Ollama 없이도 확인할 수 있습니다.
 
 ## 품질 검사
 

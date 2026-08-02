@@ -36,9 +36,9 @@ class _RetryableLLMError(Exception):
     """Ollama 서버 연결 실패에만 적용하는 내부 재시도 신호."""
 
 
-_QWEN3_NON_THINKING_OPTIONS = {"temperature": 0.7, "top_p": 0.8, "top_k": 20}
-"""Qwen3 공식 권장 non-thinking 모드 샘플링 값. 모델 기본값(temperature=0.6, top_p=0.95)은
-thinking 모드용이라 think=False로 호출할 때는 이 값으로 덮어써야 한다."""
+_LLM_SAMPLING_OPTIONS = {"temperature": 0.7, "top_p": 0.8, "top_k": 20}
+"""구조화 출력 품질을 위한 샘플링 값. temperature=0(greedy)은 반복·품질 저하를 유발할 수 있어
+피하고, 이 값으로 실제 여러 로컬 모델(Qwen3, Kanana)에서 안정적인 결과를 확인했다."""
 
 
 class LocalLLMConnector:
@@ -91,7 +91,7 @@ class LocalLLMConnector:
                     messages=messages,
                     format=AnomalyLLMResult.model_json_schema(),
                     think=False,
-                    options=_QWEN3_NON_THINKING_OPTIONS,
+                    options=_LLM_SAMPLING_OPTIONS,
                 )
             else:
                 response = await self.client.chat(
@@ -99,7 +99,7 @@ class LocalLLMConnector:
                     messages=messages,
                     format=AnomalyLLMResult.model_json_schema(),
                     think=False,
-                    options=_QWEN3_NON_THINKING_OPTIONS,
+                    options=_LLM_SAMPLING_OPTIONS,
                 )
             content = getattr(getattr(response, "message", None), "content", None)
             if not isinstance(content, str) or not content:

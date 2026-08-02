@@ -12,9 +12,9 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
     app_env: str = "development"
     log_level: str = "INFO"
-    llm_model: str = "qwen3:8b"
+    llm_model: str = "coolsoon/kanana-1.5-8b"
     llm_base_url: str = "http://localhost:11434"
-    llm_timeout_seconds: float = Field(default=180, gt=0)
+    llm_timeout_seconds: float = Field(default=420, gt=0)
     llm_max_retries: int = Field(default=2, ge=0, le=2)
     result_forward_endpoint_url: str = ""
     result_forward_timeout_seconds: float = Field(default=10, gt=0)
