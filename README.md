@@ -10,9 +10,9 @@ CareSignal API는 합성 수도 사용량을 기반으로 복지 담당자의 �
 
 | 기능 | 모듈 | 책임 | 하지 않는 일 | 단독 테스트 |
 |---|---|---|---|---|
-| 입력 정규화 | `WaterUsageGetter` | API 요청 검증, 정렬, `NormalizedWaterUsage` 생성 | AI 호출, 결과 전달 | `pytest tests/unit/test_water_usage_getter.py` |
-| AI 분석 | `OpenAIConnector` | 시스템 프롬프트와 사용자 payload를 받아 `AnomalyLLMResult` 반환 | 외부 결과 엔드포인트로 전달 | `pytest tests/unit/test_openai_connector.py` |
-| 결과 전달 | `AnomalyAnalysisService` | AI 분석 결과를 원 요청 포맷에 `analysis_result` 키로 추가해 다른 엔드포인트로 POST | SDK 초기화, HTTP 라우팅, 입력 정규화 | `pytest tests/unit/test_anomaly_analysis_service.py` |
+| 입력 정규화 | `WaterUsageGetter` | API 요청 검증, 정렬, `NormalizedWaterUsage` 생성 | 특징 계산, AI 호출, 결과 전달 | `pytest tests/unit/test_water_usage_getter.py` |
+| AI 분석 | `LocalLLMConnector` | 로컬 Ollama 서버(Kanana 1.5 8B) 호출, 구조화 출력(JSON Schema) 강제, timeout·재시도·오류 변환 | 특징 계산, 비즈니스 프롬프트 작성, 외부 결과 엔드포인트로 전달 | `pytest tests/unit/test_local_llm_connector.py` |
+| 결과 전달 | `AnomalyAnalysisService` | 특징 계산, 안전 게이트, 최종 응답 조립, AI 분석 결과를 원 요청 포맷에 `analysis_result` 키로 추가해 다른 엔드포인트로 POST | SDK 초기화, HTTP 라우팅, 입력 정규화 | `pytest tests/unit/test_anomaly_analysis_service.py` |
 
 결과 전달 기능의 핵심 출력 포맷은 다음처럼 **초기 요청 포맷 + 키-밸류 하나**입니다.
 
@@ -46,33 +46,47 @@ CareSignal API는 합성 수도 사용량을 기반으로 복지 담당자의 �
 FastAPI Router
 → WaterUsageGetter.normalize()
 → AnomalyAnalysisService.analyze()
-→ OpenAIConnector.analyze()
+→ LocalLLMConnector.analyze()
 → AnomalyAnalysisService.forward_analysis_result()
 → RESULT_FORWARD_ENDPOINT_URL
 → AnomalyAnalysisResponse
 ```
 
-라우터는 의존성 연결만 담당합니다. Getter는 입력을 내부 구조체로 정규화합니다. Connector는 OpenAI 호출만 담당합니다. Service는 AI 분석 결과를 받은 뒤 원 요청 형태를 재구성하고 `analysis_result`만 추가해 외부 엔드포인트로 전송합니다.
+라우터는 의존성 연결만 담당합니다. Getter는 입력을 내부 구조체로 정규화합니다. Connector는 로컬 Ollama 호출만 담당합니다. Service는 특징값을 계산하고 AI 분석 결과를 받은 뒤, 원 요청 형태를 재구성해 `analysis_result`만 추가해 외부 엔드포인트로 전송합니다.
 
 `RESULT_FORWARD_ENDPOINT_URL`이 비어 있으면 로컬 개발과 테스트를 위해 외부 전송을 생략합니다.
 
 Downstream 수신 endpoint를 개발하는 쪽은 [Downstream 전달 payload 수신 개발 가이드](docs/downstream-forwarding-usage.md)만 보면 됩니다.
 
+## 프로젝트 구조
+
+```text
+app/api          라우터와 의존성 주입
+app/core         환경설정, 예외, 구조화 로그
+app/schemas      외부·내부·LLM Pydantic v2 구조
+app/modules      Getter, Connector, Service
+app/prompts      한국어 안전 시스템 프롬프트
+app/utils        날짜 및 특징 계산
+tests            실제 Ollama 서버와 외부 결과 endpoint를 쓰지 않는 단위·통합 테스트
+scripts          합성 샘플 생성기
+samples          생성된 요청과 호출 클라이언트
+docs             설계·흐름·한계 문서
+```
+
 ## 환경변수
 
 ```env
-OPENAI_API_KEY=
-OPENAI_MODEL=gpt-4.1-mini
-OPENAI_TIMEOUT_SECONDS=30
-OPENAI_MAX_RETRIES=2
-OPENAI_STORE=false
+LLM_MODEL=coolsoon/kanana-1.5-8b
+LLM_BASE_URL=http://localhost:11434
+LLM_TIMEOUT_SECONDS=420
+LLM_MAX_RETRIES=2
 RESULT_FORWARD_ENDPOINT_URL=
 RESULT_FORWARD_TIMEOUT_SECONDS=10
 MISSING_RATIO_THRESHOLD=0.20
 CORS_ORIGINS=
 ```
 
-`OPENAI_STORE` 설정과 무관하게 OpenAI 요청은 개인정보 보호 원칙에 따라 `store=False`입니다.
+`RESULT_FORWARD_ENDPOINT_URL`이 비어 있으면 결과 전달을 생략합니다.
 
 ## 설치
 
@@ -91,6 +105,8 @@ python -m venv .venv
 .venv\Scripts\activate
 pip install -e ".[dev]"
 ```
+
+`.env.example`을 `.env`로 복사하고 필요한 환경변수를 설정합니다. 로컬 Ollama 서버(`LLM_BASE_URL`)가 실행 중이어야 하며, 모델은 `ollama pull coolsoon/kanana-1.5-8b`로 미리 받아둬야 합니다. CPU 환경에서는 요청당 4~6분 정도 걸릴 수 있어 `LLM_TIMEOUT_SECONDS`를 넉넉히(기본 420초) 잡았습니다. `RESULT_FORWARD_ENDPOINT_URL`이 없어도 서버, `/health`, OFFLINE 로컬 분석과 테스트는 동작합니다.
 
 ## 실행과 API 호출
 
@@ -111,11 +127,11 @@ curl -X POST "http://127.0.0.1:8000/api/v1/anomalies/analyze" \
 
 1. `app/api/routes/anomalies.py`의 `analyze_anomaly`
 2. `app/modules/getter/water_usage_getter.py`의 `normalize`
-3. `app/modules/detector/anomaly_analysis_service.py`의 `analyze`
-4. `app/modules/ai/openai_connector.py`의 `analyze`
+3. `app/modules/detector/anomaly_analysis_service.py`의 `analyze`와 `build_user_payload`
+4. `app/modules/ai/local_llm_connector.py`의 `analyze`와 `_call_once`
 5. `app/modules/detector/anomaly_analysis_service.py`의 `forward_analysis_result`
 
-실제 AI 호출 없이 결과 전달 기능을 개발할 때는 `tests.conftest.FakeOpenAIConnector`를 주입합니다. 외부 endpoint 호출 없이 검증할 때는 `forward_callable` 테스트 대역을 주입합니다.
+실제 Connector까지 추적하려면 Ollama 서버를 실행하고 `coolsoon/kanana-1.5-8b` 모델을 받아둔 뒤 정상 샘플을 호출합니다. Ollama와 외부 endpoint 없이 전 과정을 재현하려면 `전체 테스트 디버그` 구성으로 `tests/integration/test_anomaly_api.py::test_normal_analysis_with_fake`를 실행하거나, `forward_callable` 테스트 대역을 주입합니다. OFFLINE 안전 게이트는 Ollama 없이도 확인할 수 있습니다.
 
 ## 품질 검사
 
@@ -126,7 +142,7 @@ ruff format --check .
 mypy app
 ```
 
-모든 테스트는 Fake 또는 주입된 callable을 사용해 실제 OpenAI API와 외부 결과 endpoint를 호출하지 않습니다.
+모든 테스트는 Fake 또는 주입된 callable을 사용해 실제 Ollama 서버와 외부 결과 endpoint를 호출하지 않습니다.
 
 ## 개인정보와 한계
 

@@ -8,7 +8,7 @@ class HealthResponse(BaseModel):
 
     status: str
     service: str
-    openai_configured: bool
+    llm_configured: bool
 
 
 class ErrorResponse(BaseModel):

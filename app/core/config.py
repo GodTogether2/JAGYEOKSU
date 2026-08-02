@@ -12,20 +12,19 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
     app_env: str = "development"
     log_level: str = "INFO"
-    openai_api_key: str = ""
-    openai_model: str = "gpt-4.1-mini"
-    openai_timeout_seconds: float = Field(default=30, gt=0)
-    openai_max_retries: int = Field(default=2, ge=0, le=2)
-    openai_store: bool = False
+    llm_model: str = "coolsoon/kanana-1.5-8b"
+    llm_base_url: str = "http://localhost:11434"
+    llm_timeout_seconds: float = Field(default=420, gt=0)
+    llm_max_retries: int = Field(default=2, ge=0, le=2)
     result_forward_endpoint_url: str = ""
     result_forward_timeout_seconds: float = Field(default=10, gt=0)
     missing_ratio_threshold: float = Field(default=0.2, ge=0, le=1)
     cors_origins: str = ""
 
     @property
-    def openai_configured(self) -> bool:
-        """키 존재 여부만 공개하고 실제 값은 노출하지 않는다."""
-        return bool(self.openai_api_key.strip())
+    def llm_configured(self) -> bool:
+        """LLM 모델명이 설정되어 있는지 여부만 공개한다."""
+        return bool(self.llm_model.strip())
 
 
 @lru_cache

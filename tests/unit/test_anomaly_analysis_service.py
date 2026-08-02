@@ -8,7 +8,7 @@ from app.modules.detector.anomaly_analysis_service import AnomalyAnalysisService
 from app.modules.getter.water_usage_getter import WaterUsageGetter
 from app.schemas.anomaly import AnomalyLLMResult
 from app.utils.feature_utils import calculate_features
-from tests.conftest import FakeOpenAIConnector
+from tests.conftest import FakeLLMConnector
 
 
 def normalized(request_factory, **kwargs):
@@ -26,7 +26,7 @@ def test_features(request_factory) -> None:
 
 @pytest.mark.asyncio
 async def test_offline_skips_gpt(request_factory) -> None:
-    fake = FakeOpenAIConnector()
+    fake = FakeLLMConnector()
     result = await AnomalyAnalysisService(fake, Settings()).analyze(
         normalized(request_factory, meter_status="OFFLINE")
     )
@@ -37,7 +37,7 @@ async def test_offline_skips_gpt(request_factory) -> None:
 
 @pytest.mark.asyncio
 async def test_absence_and_72_hours_payload(request_factory) -> None:
-    fake = FakeOpenAIConnector()
+    fake = FakeLLMConnector()
     data = normalized(request_factory, hours=24 * 30, expected_absence=True)
     result = await AnomalyAnalysisService(fake, Settings()).analyze(data)
     payload = fake.calls[0][1]
@@ -48,7 +48,7 @@ async def test_absence_and_72_hours_payload(request_factory) -> None:
 
 @pytest.mark.asyncio
 async def test_forwards_original_request_shape_with_llm_result(request_factory) -> None:
-    fake = FakeOpenAIConnector()
+    fake = FakeLLMConnector()
     forwarded: list[tuple[str, dict[str, object]]] = []
 
     async def forward(url: str, payload: dict[str, object]) -> None:
