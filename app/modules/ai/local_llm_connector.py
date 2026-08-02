@@ -36,6 +36,11 @@ class _RetryableLLMError(Exception):
     """Ollama 서버 연결 실패에만 적용하는 내부 재시도 신호."""
 
 
+_QWEN3_NON_THINKING_OPTIONS = {"temperature": 0.7, "top_p": 0.8, "top_k": 20}
+"""Qwen3 공식 권장 non-thinking 모드 샘플링 값. 모델 기본값(temperature=0.6, top_p=0.95)은
+thinking 모드용이라 think=False로 호출할 때는 이 값으로 덮어써야 한다."""
+
+
 class LocalLLMConnector:
     """Ollama 서버 연결, 요청, 재시도 및 오류 번역만 담당한다."""
 
@@ -86,6 +91,7 @@ class LocalLLMConnector:
                     messages=messages,
                     format=AnomalyLLMResult.model_json_schema(),
                     think=False,
+                    options=_QWEN3_NON_THINKING_OPTIONS,
                 )
             else:
                 response = await self.client.chat(
@@ -93,6 +99,7 @@ class LocalLLMConnector:
                     messages=messages,
                     format=AnomalyLLMResult.model_json_schema(),
                     think=False,
+                    options=_QWEN3_NON_THINKING_OPTIONS,
                 )
             content = getattr(getattr(response, "message", None), "content", None)
             if not isinstance(content, str) or not content:
