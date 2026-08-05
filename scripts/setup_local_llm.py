@@ -73,7 +73,7 @@ def is_model_pulled(client: _OllamaClientLike, model: str) -> bool:
     """모델이 이미 로컬에 받아져 있는지 확인한다."""
     target = _with_default_tag(model)
     return any(
-        _with_default_tag(item.model) == target  # type: ignore
+        _with_default_tag(item.model) == target
         for item in client.list().models  # type: ignore
     )
 
