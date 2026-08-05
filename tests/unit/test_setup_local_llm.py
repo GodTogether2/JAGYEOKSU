@@ -92,6 +92,29 @@ def test_is_model_pulled_true_when_server_returns_default_tag() -> None:
     assert is_model_pulled(FakeClient(), "coolsoon/kanana-1.5-8b") is True
 
 
+def test_is_model_pulled_ignores_entries_with_no_model_name() -> None:
+    """model이 None인 항목이 있어도 TypeError 없이 무시하고 계속 비교한다."""
+
+    class FakeClient:
+        def list(self) -> SimpleNamespace:
+            return SimpleNamespace(
+                models=[
+                    SimpleNamespace(model=None),
+                    SimpleNamespace(model="coolsoon/kanana-1.5-8b:latest"),
+                ]
+            )
+
+    assert is_model_pulled(FakeClient(), "coolsoon/kanana-1.5-8b") is True
+
+
+def test_is_model_pulled_false_when_only_entry_has_no_model_name() -> None:
+    class FakeClient:
+        def list(self) -> SimpleNamespace:
+            return SimpleNamespace(models=[SimpleNamespace(model=None)])
+
+    assert is_model_pulled(FakeClient(), "coolsoon/kanana-1.5-8b") is False
+
+
 def test_pull_model_streams_progress(capsys) -> None:
     class FakeClient:
         def pull(self, model: str, *, stream: bool = True) -> list[SimpleNamespace]:

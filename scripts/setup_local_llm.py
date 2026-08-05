@@ -5,8 +5,8 @@ import shutil
 import subprocess
 import sys
 import time
-from collections.abc import Callable
-from typing import Protocol
+from collections.abc import Callable, Iterator
+from typing import Literal, Protocol
 
 import httpx
 import ollama
@@ -54,9 +54,9 @@ def wait_for_server(
 
 
 class _OllamaClientLike(Protocol):
-    def list(self) -> object: ...
+    def list(self) -> ollama.ListResponse: ...
 
-    def pull(self, model: str, *, stream: bool = True) -> object: ...
+    def pull(self, model: str, *, stream: Literal[True]) -> Iterator[ollama.ProgressResponse]: ...
 
 
 def _with_default_tag(model: str) -> str:
@@ -73,14 +73,13 @@ def is_model_pulled(client: _OllamaClientLike, model: str) -> bool:
     """모델이 이미 로컬에 받아져 있는지 확인한다."""
     target = _with_default_tag(model)
     return any(
-        _with_default_tag(item.model) == target
-        for item in client.list().models  # type: ignore
+        item.model and _with_default_tag(item.model) == target for item in client.list().models
     )
 
 
 def pull_model(client: _OllamaClientLike, model: str) -> None:
     """모델을 다운로드하며 진행률을 stdout에 스트리밍한다."""
-    for progress in client.pull(model, stream=True):  # type: ignore
+    for progress in client.pull(model, stream=True):
         if progress.total and progress.completed:
             percent = progress.completed / progress.total * 100
             print(f"{progress.status}: {percent:.1f}%")
@@ -114,12 +113,20 @@ def main() -> int:
         return 1
 
     client = ollama.Client(host=settings.llm_base_url)
-    if is_model_pulled(client, settings.llm_model):  # type: ignore
-        print(f"모델이 이미 받아져 있습니다: {settings.llm_model}")
-        return 0
+    try:
+        if is_model_pulled(client, settings.llm_model):
+            print(f"모델이 이미 받아져 있습니다: {settings.llm_model}")
+            return 0
 
-    print(f"모델 다운로드 중: {settings.llm_model} (수 GB, 몇 분 걸릴 수 있습니다)")
-    pull_model(client, settings.llm_model)  # type: ignore
+        print(f"모델 다운로드 중: {settings.llm_model} (수 GB, 몇 분 걸릴 수 있습니다)")
+        pull_model(client, settings.llm_model)
+    except Exception as exc:
+        print(
+            f"모델 확인/다운로드 중 오류가 발생했습니다: {exc}\n"
+            "네트워크 상태를 확인하고 스크립트를 다시 실행하세요."
+        )
+        return 1
+
     print("완료.")
     return 0
 
