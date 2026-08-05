@@ -1,11 +1,17 @@
 """Ollama 서버 설치와 로컬 LLM 모델 다운로드를 자동화한다."""
 
+import platform
 import shutil
+import subprocess
+import sys
 import time
 from collections.abc import Callable
 from typing import Protocol
 
 import httpx
+import ollama
+
+from app.core.config import get_settings
 
 INSTALL_COMMANDS: dict[str, str] = {
     "Windows": (
@@ -66,3 +72,43 @@ def pull_model(client: _OllamaClientLike, model: str) -> None:
             print(f"{progress.status}: {percent:.1f}%")
         else:
             print(progress.status)
+
+
+def main() -> int:
+    settings = get_settings()
+    system = platform.system()
+
+    if is_ollama_installed():
+        print("Ollama가 이미 설치되어 있습니다.")
+    else:
+        command = get_install_command(system)
+        if command is None:
+            print(
+                f"지원하지 않는 OS입니다: {system}. "
+                "https://ollama.com/download 에서 직접 설치하세요."
+            )
+            return 1
+        print(f"Ollama 설치 중: {command}")
+        subprocess.run(command, shell=True, check=True)
+
+    print("Ollama 서버 응답 대기 중...")
+    if not wait_for_server(settings.llm_base_url):
+        print(
+            "Ollama 설치는 됐지만 서버가 응답하지 않습니다. "
+            "직접 실행한 뒤 이 스크립트를 다시 실행하세요."
+        )
+        return 1
+
+    client = ollama.Client(host=settings.llm_base_url)
+    if is_model_pulled(client, settings.llm_model):  # type: ignore
+        print(f"모델이 이미 받아져 있습니다: {settings.llm_model}")
+        return 0
+
+    print(f"모델 다운로드 중: {settings.llm_model} (수 GB, 몇 분 걸릴 수 있습니다)")
+    pull_model(client, settings.llm_model)  # type: ignore
+    print("완료.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
