@@ -106,7 +106,13 @@ python -m venv .venv
 pip install -e ".[dev]"
 ```
 
-`.env.example`을 `.env`로 복사하고 필요한 환경변수를 설정합니다. 로컬 Ollama 서버(`LLM_BASE_URL`)가 실행 중이어야 하며, 모델은 `ollama pull coolsoon/kanana-1.5-8b`로 미리 받아둬야 합니다. CPU 환경에서는 요청당 4~6분 정도 걸릴 수 있어 `LLM_TIMEOUT_SECONDS`를 넉넉히(기본 420초) 잡았습니다. `RESULT_FORWARD_ENDPOINT_URL`이 없어도 서버, `/health`, OFFLINE 로컬 분석과 테스트는 동작합니다.
+`.env.example`을 `.env`로 복사하고 필요한 환경변수를 설정합니다. 아래 스크립트를 실행하면 Ollama가 없을 때 자동으로 설치하고(Windows: winget, macOS/Linux: 공식 설치 스크립트), `LLM_MODEL`에 설정된 모델(기본 `coolsoon/kanana-1.5-8b`)을 없으면 자동으로 받아옵니다. 이미 설치·다운로드돼 있으면 건너뜁니다.
+
+```bash
+python scripts/setup_local_llm.py
+```
+
+CPU 환경에서는 요청당 4~6분 정도 걸릴 수 있어 `LLM_TIMEOUT_SECONDS`를 넉넉히(기본 420초) 잡았습니다. `RESULT_FORWARD_ENDPOINT_URL`이 없어도 서버, `/health`, OFFLINE 로컬 분석과 테스트는 동작합니다.
 
 ## 실행과 API 호출
 
