@@ -1,10 +1,17 @@
 """scripts/setup_local_llm.py의 순수 로직 단위 테스트."""
 
 import shutil
+from types import SimpleNamespace
 
 import httpx
 
-from scripts.setup_local_llm import get_install_command, is_ollama_installed, wait_for_server
+from scripts.setup_local_llm import (
+    get_install_command,
+    is_model_pulled,
+    is_ollama_installed,
+    pull_model,
+    wait_for_server,
+)
 
 
 def test_get_install_command_windows() -> None:
@@ -57,3 +64,36 @@ def test_wait_for_server_times_out() -> None:
         "http://x", timeout_seconds=0.05, get_callable=get_callable, sleep_callable=lambda s: None
     )
     assert result is False
+
+
+def test_is_model_pulled_true() -> None:
+    class FakeClient:
+        def list(self) -> SimpleNamespace:
+            return SimpleNamespace(models=[SimpleNamespace(model="coolsoon/kanana-1.5-8b")])
+
+    assert is_model_pulled(FakeClient(), "coolsoon/kanana-1.5-8b") is True
+
+
+def test_is_model_pulled_false() -> None:
+    class FakeClient:
+        def list(self) -> SimpleNamespace:
+            return SimpleNamespace(models=[])
+
+    assert is_model_pulled(FakeClient(), "coolsoon/kanana-1.5-8b") is False
+
+
+def test_pull_model_streams_progress(capsys) -> None:
+    class FakeClient:
+        def pull(self, model: str, *, stream: bool = True) -> list[SimpleNamespace]:
+            assert model == "coolsoon/kanana-1.5-8b"
+            assert stream is True
+            return [
+                SimpleNamespace(status="pulling manifest", completed=None, total=None),
+                SimpleNamespace(status="downloading", completed=50, total=100),
+                SimpleNamespace(status="success", completed=100, total=100),
+            ]
+
+    pull_model(FakeClient(), "coolsoon/kanana-1.5-8b")
+    captured = capsys.readouterr()
+    assert "downloading" in captured.out
+    assert "success" in captured.out
