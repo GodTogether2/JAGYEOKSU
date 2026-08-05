@@ -59,9 +59,23 @@ class _OllamaClientLike(Protocol):
     def pull(self, model: str, *, stream: bool = True) -> object: ...
 
 
+def _with_default_tag(model: str) -> str:
+    """태그가 없는 모델명에 Ollama의 기본 태그(:latest)를 붙인다.
+
+    Ollama 서버는 ``client.list()``에서 모델명을 항상 태그(예: ``:latest``)를
+    붙여 돌려주므로, 태그를 생략한 설정값(예: ``coolsoon/kanana-1.5-8b``)과
+    비교하려면 양쪽 모두 같은 방식으로 정규화해야 한다.
+    """
+    return model if ":" in model else f"{model}:latest"
+
+
 def is_model_pulled(client: _OllamaClientLike, model: str) -> bool:
     """모델이 이미 로컬에 받아져 있는지 확인한다."""
-    return any(item.model == model for item in client.list().models)  # type: ignore
+    target = _with_default_tag(model)
+    return any(
+        _with_default_tag(item.model) == target  # type: ignore
+        for item in client.list().models  # type: ignore
+    )
 
 
 def pull_model(client: _OllamaClientLike, model: str) -> None:

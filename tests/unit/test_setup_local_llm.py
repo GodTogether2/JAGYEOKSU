@@ -82,6 +82,16 @@ def test_is_model_pulled_false() -> None:
     assert is_model_pulled(FakeClient(), "coolsoon/kanana-1.5-8b") is False
 
 
+def test_is_model_pulled_true_when_server_returns_default_tag() -> None:
+    """실제 Ollama 서버는 태그 없는 모델명도 ':latest' 태그를 붙여 돌려준다."""
+
+    class FakeClient:
+        def list(self) -> SimpleNamespace:
+            return SimpleNamespace(models=[SimpleNamespace(model="coolsoon/kanana-1.5-8b:latest")])
+
+    assert is_model_pulled(FakeClient(), "coolsoon/kanana-1.5-8b") is True
+
+
 def test_pull_model_streams_progress(capsys) -> None:
     class FakeClient:
         def pull(self, model: str, *, stream: bool = True) -> list[SimpleNamespace]:
