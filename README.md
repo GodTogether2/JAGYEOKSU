@@ -129,6 +129,15 @@ curl -X POST "http://127.0.0.1:8000/api/v1/anomalies/analyze" \
   --data-binary "@samples/no_usage_request.json"
 ```
 
+## Docker
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+`ollama` 서비스가 뜨고, `model-init` 서비스가 `LLM_MODEL`에 설정된 모델을 자동으로 pull한 뒤 종료되면 그때 `api` 서비스가 시작됩니다. 최초 실행 시 모델 다운로드 때문에 몇 분 걸릴 수 있습니다. 모델은 `ollama_data` 볼륨에 저장되므로 `docker compose down` 후 다시 올려도 재다운로드하지 않습니다(볼륨을 지우지 않는 한).
+
 ## 로컬 디버깅 순서
 
 1. `app/api/routes/anomalies.py`의 `analyze_anomaly`
