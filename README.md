@@ -90,6 +90,20 @@ CORS_ORIGINS=
 
 ## 설치
 
+bash가 있는 환경(macOS/Linux, Windows Git Bash 등)이라면 아래 스크립트로 venv 생성부터 `.env` 설정, Ollama·LLM 모델 자동 설치, 샘플 데이터 생성까지 한 번에 끝낼 수 있습니다. 이미 되어 있는 단계는 건너뜁니다.
+
+```bash
+bash scripts/setup.sh
+```
+
+완료 후 서버는 아래로 실행합니다(이후에는 이 명령만 실행하면 됩니다).
+
+```bash
+bash scripts/run_server.sh
+```
+
+각 단계를 직접 실행하고 싶다면 아래를 그대로 따라 해도 됩니다.
+
 macOS/Linux:
 
 ```bash
@@ -106,9 +120,17 @@ python -m venv .venv
 pip install -e ".[dev]"
 ```
 
-`.env.example`을 `.env`로 복사하고 필요한 환경변수를 설정합니다. 로컬 Ollama 서버(`LLM_BASE_URL`)가 실행 중이어야 하며, 모델은 `ollama pull coolsoon/kanana-1.5-8b`로 미리 받아둬야 합니다. CPU 환경에서는 요청당 4~6분 정도 걸릴 수 있어 `LLM_TIMEOUT_SECONDS`를 넉넉히(기본 420초) 잡았습니다. `RESULT_FORWARD_ENDPOINT_URL`이 없어도 서버, `/health`, OFFLINE 로컬 분석과 테스트는 동작합니다.
+`.env.example`을 `.env`로 복사하고 필요한 환경변수를 설정합니다. 아래 스크립트를 실행하면 Ollama가 없을 때 자동으로 설치하고(Windows: winget, macOS/Linux: 공식 설치 스크립트), `LLM_MODEL`에 설정된 모델(기본 `coolsoon/kanana-1.5-8b`)을 없으면 자동으로 받아옵니다. 이미 설치·다운로드돼 있으면 건너뜁니다.
+
+```bash
+python scripts/setup_local_llm.py
+```
+
+CPU 환경에서는 요청당 4~6분 정도 걸릴 수 있어 `LLM_TIMEOUT_SECONDS`를 넉넉히(기본 420초) 잡았습니다. `RESULT_FORWARD_ENDPOINT_URL`이 없어도 서버, `/health`, OFFLINE 로컬 분석과 테스트는 동작합니다.
 
 ## 실행과 API 호출
+
+`bash scripts/setup.sh`로 설치했다면 `bash scripts/run_server.sh`만 실행하면 됩니다. 직접 실행하려면:
 
 ```bash
 python scripts/generate_sample_data.py
@@ -122,6 +144,15 @@ curl -X POST "http://127.0.0.1:8000/api/v1/anomalies/analyze" \
   -H "Content-Type: application/json" \
   --data-binary "@samples/no_usage_request.json"
 ```
+
+## Docker
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+`ollama` 서비스가 뜨고, `model-init` 서비스가 `LLM_MODEL`에 설정된 모델을 자동으로 pull한 뒤 종료되면 그때 `api` 서비스가 시작됩니다. 최초 실행 시 모델 다운로드 때문에 몇 분 걸릴 수 있습니다. 모델은 `ollama_data` 볼륨에 저장되므로 `docker compose down` 후 다시 올려도 재다운로드하지 않습니다(볼륨을 지우지 않는 한).
 
 ## 로컬 디버깅 순서
 
